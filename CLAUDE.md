@@ -65,6 +65,21 @@ and `mcwSchedule()`. If you change the exception/range/weekly precedence, update
 `mcw_hours_resolve()` (PHP) and this shared JS snippet together; they must stay in sync since PHP
 resolves server-side rendering paths (none currently) while JS resolves entirely client-side.
 
+## Release workflow
+
+Every code change to this plugin ships as a versioned release, not just a commit — same process
+used for the wprooms (MCW Reserve a Room) sister repo:
+
+1. Bump `Version:` in the `mcw-library-hours.php` plugin header using SemVer (patch for bug fixes,
+   minor for backward-compatible features, major for breaking changes).
+2. Add a dated entry to the `## Changelog` section in `README.md`.
+3. Commit and push to `main`.
+4. Cut a GitHub release: `gh release create vX.Y.Z` with a zip of the plugin as the asset. The
+   zip's top-level folder must be `mcw-library-hours/` containing `mcw-library-hours.php` (plus
+   README/LICENSE) — WordPress's Plugins → Add New → Upload Plugin requires that exact layout, not
+   a bare `.php` file or files at the zip root. Do this automatically for future changes; only
+   check in if the version-bump category is ambiguous.
+
 ## Conventions to preserve
 
 - **Nowdoc vs heredoc**: markup/CSS/JS with no PHP variables uses `<<<'HTML'` (nowdoc, no

@@ -12,6 +12,10 @@ Replaces LibCal Hours.
 
 Download the latest release zip, then in wp-admin: **Plugins → Add New → Upload Plugin**.
 
+## Changelog
+
+- **1.1.12** (2026-09-02) — Initial commit to this repo.
+
 ## License
 
 GPL-2.0+

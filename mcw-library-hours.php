@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       MCW Library Hours
+ * Plugin Name:       Library Hours
  * Description:        No-code library hours: staff edit hours under Library Hours in wp-admin and click Save. Show them anywhere with the [library_hours] shortcode. Replaces LibCal hours.
- * Version:           1.1.12
+ * Version:           1.1.13
  * Author:            Madeleine Clark Wallace Library
  * License:           GPL-2.0+
  * Requires at least: 5.6
@@ -165,7 +165,8 @@ function mcw_hours_guest( $opt ) {
 }
 
 /**
- * Resolve a schedule for a date. Precedence: exception > first matching range > weekly.
+ * Resolve a schedule for a date. Precedence: exception > last matching range (most
+ * recently added wins when ranges overlap) > weekly.
  * Returns ['blocks'=>[{open,close}...], 'note'=>string, 'closed'=>bool].
  */
 function mcw_hours_resolve( $schedule, $date ) {
@@ -181,11 +182,15 @@ function mcw_hours_resolve( $schedule, $date ) {
 	}
 	$ranges = isset( $schedule['ranges'] ) && is_array( $schedule['ranges'] ) ? $schedule['ranges'] : array();
 	$dow    = (int) gmdate( 'w', strtotime( $date . ' 00:00:00' ) );
+	$match  = null;
 	foreach ( $ranges as $r ) {
 		if ( isset( $r['start'], $r['end'] ) && $date >= $r['start'] && $date <= $r['end'] ) {
-			$wk = isset( $r['weekly'][ (string) $dow ] ) ? $r['weekly'][ (string) $dow ] : array();
-			return array( 'blocks' => is_array( $wk ) ? $wk : array(), 'note' => '', 'closed' => empty( $wk ) );
+			$match = $r; // Keep scanning; a later (more recently added) range overrides an earlier overlapping one.
 		}
+	}
+	if ( null !== $match ) {
+		$wk = isset( $match['weekly'][ (string) $dow ] ) ? $match['weekly'][ (string) $dow ] : array();
+		return array( 'blocks' => is_array( $wk ) ? $wk : array(), 'note' => '', 'closed' => empty( $wk ) );
 	}
 	$weekly = isset( $schedule['weekly'][ (string) $dow ] ) ? $schedule['weekly'][ (string) $dow ] : array();
 	return array( 'blocks' => is_array( $weekly ) ? $weekly : array(), 'note' => '', 'closed' => empty( $weekly ) );
@@ -422,7 +427,10 @@ document.getElementById("mcw-save").onclick=function(){
     if(!s||!e){flash("Enter both a start and end date for the range (or clear both).",true);return;}
     if(e<s){flash("The end date must be on or after the start date.",true);return;}
     cur().ranges.push({start:s,end:e,label:"",weekly:clone(work)});
-    si.value="";ei.value="";work=clone(cur().weekly);renderWeek();renderRanges();
+    si.value="";ei.value="";renderRanges();
+    // Deliberately leave `work` as-is (don't reset it to the everyday hours): the hours just
+    // used for this range stay visible in "Set hours" so a second range added right after
+    // reuses them instead of silently saving as closed every day.
     if(target==="guest")guestCommitted=true;
     doSave("Saved — those hours now apply "+fmtDate(s)+" – "+fmtDate(e)+". Your everyday hours are unchanged. ✓");
   }else{
@@ -443,7 +451,7 @@ HTML;
  *  Front-end widget  [library_hours]
  * ------------------------------------------------------------------ */
 
-/** Shared JS: mcwResolve(sch, dateKey, dow) -> {blocks, note}. Precedence: exception > range > weekly. */
+/** Shared JS: mcwResolve(sch, dateKey, dow) -> {blocks, note}. Precedence: exception > last matching range (most recently added wins when ranges overlap) > weekly. */
 function mcw_hours_resolve_js() {
 	return <<<'JS'
 function mcwResolve(sch, dateKey, dow){
@@ -454,12 +462,14 @@ function mcwResolve(sch, dateKey, dow){
     if(exc.blocks) return {blocks:exc.blocks, note:exc.note||""};
   }
   var ranges = sch.ranges || [];
+  var match = null;
   for(var i=0;i<ranges.length;i++){
     var r=ranges[i];
     if(r.start && r.end && dateKey>=r.start && dateKey<=r.end){
-      return {blocks:(r.weekly&&r.weekly[String(dow)])||[], note:""};
+      match = r; // keep scanning; a later (more recently added) range overrides an earlier overlapping one
     }
   }
+  if(match) return {blocks:(match.weekly&&match.weekly[String(dow)])||[], note:""};
   return {blocks:(sch.weekly&&sch.weekly[String(dow)])||[], note:""};
 }
 function mcwSchedule(cfg, which){

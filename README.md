@@ -1,4 +1,4 @@
-# wphours — MCW Library Hours
+# wphours — Library Hours
 
 No-code WordPress plugin for library hours. Staff edit hours under **Library Hours** in
 wp-admin and click Save; display them anywhere with the `[library_hours]` shortcode.
@@ -14,6 +14,12 @@ Download the latest release zip, then in wp-admin: **Plugins → Add New → Upl
 
 ## Changelog
 
+- **1.1.13** (2026-09-09) — Fixed: overlapping date ranges now resolve to the most recently
+  added range instead of the oldest one, so a new range no longer requires deleting old ones to
+  take effect. Fixed: the "Set hours" grid no longer silently resets to blank after saving a date
+  range, which could cause a second range saved right after to end up with no hours at all
+  (looking like holidays/exceptions weren't being applied). Removed "MCW" branding from
+  user-facing text (plugin name).
 - **1.1.12** (2026-09-02) — Initial commit to this repo.
 
 ## License

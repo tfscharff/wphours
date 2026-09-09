@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-MCW Library Hours — a single-file WordPress plugin (`mcw-library-hours.php`) that lets library
+Library Hours — a single-file WordPress plugin (`mcw-library-hours.php`) that lets library
 staff edit hours in wp-admin and displays them on the front end via shortcodes. No build step, no
 package manager, no test suite — it's plain PHP + vanilla JS, deployed by zipping the plugin and
 uploading it through wp-admin (see README.md).

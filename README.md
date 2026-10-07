@@ -14,6 +14,9 @@ Download the latest release zip, then in wp-admin: **Plugins → Add New → Upl
 
 ## Changelog
 
+- **1.1.14** (2026-10-07) — Closed days on the full hours calendar (and their legend key) use a
+  solid light gray instead of diagonal stripes, so accessibility checkers can measure the text
+  contrast instead of flagging every closed day for manual review. Contrast is unchanged.
 - **1.1.13** (2026-09-09) — Fixed: overlapping date ranges now resolve to the most recently
   added range instead of the oldest one, so a new range no longer requires deleting old ones to
   take effect. Fixed: the "Set hours" grid no longer silently resets to blank after saving a date

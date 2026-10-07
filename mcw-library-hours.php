@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Library Hours
  * Description:        No-code library hours: staff edit hours under Library Hours in wp-admin and click Save. Show them anywhere with the [library_hours] shortcode. Replaces LibCal hours.
- * Version:           1.1.13
+ * Version:           1.1.14
  * Author:            Madeleine Clark Wallace Library
  * License:           GPL-2.0+
  * Requires at least: 5.6
@@ -604,7 +604,7 @@ function mcw_hours_full_markup() {
   .mcw-cal .num{display:block;font-size:.82rem;font-weight:700;line-height:1;margin-bottom:3px}
   .mcw-cal .hrs{display:block;font-size:.75rem;color:#333;line-height:1.3;font-variant-numeric:tabular-nums}
   .mcw-cal .cnote{display:block;font-size:.7rem;color:var(--muted);font-style:italic;line-height:1.25;margin-top:1px}
-  .mcw-cal td.closed{background:repeating-linear-gradient(135deg,#fbfbfb,#fbfbfb 6px,#f4f4f4 6px,#f4f4f4 12px)}
+  .mcw-cal td.closed{background:#f4f4f4}
   .mcw-cal td.closed .hrs{color:var(--closed);font-weight:600}
   .mcw-cal td.today{background:var(--today);box-shadow:inset 0 0 0 2px var(--acc)}
   .mcw-cal td.today .num{color:var(--acc)}
@@ -612,7 +612,7 @@ function mcw_hours_full_markup() {
   .mcw-hf__legend span{display:inline-flex;align-items:center;gap:6px}
   .mcw-hf__key{width:13px;height:13px;border-radius:3px;border:1px solid var(--line)}
   .mcw-hf__key.k-today{background:var(--today);box-shadow:inset 0 0 0 2px var(--acc);border-color:var(--acc)}
-  .mcw-hf__key.k-closed{background:repeating-linear-gradient(135deg,#fbfbfb,#fbfbfb 4px,#f4f4f4 4px,#f4f4f4 8px)}
+  .mcw-hf__key.k-closed{background:#f4f4f4}
   .mcw-hf__note{color:var(--muted)}
   @media (max-width:520px){.mcw-cal td{height:64px}.mcw-cal .hrs,.mcw-cal .cnote{font-size:.7rem}}
 </style>

@@ -14,6 +14,8 @@ Download the latest release zip, then in wp-admin: **Plugins → Add New → Upl
 
 ## Changelog
 
+- **1.1.15** (2026-10-07) — Full hours calendar shading: open days white, closed days light gray,
+  today pale blue, and days outside the month dark gray.
 - **1.1.14** (2026-10-07) — Closed days on the full hours calendar (and their legend key) use a
   solid light gray instead of diagonal stripes, so accessibility checkers can measure the text
   contrast instead of flagging every closed day for manual review. Contrast is unchanged.

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Library Hours
  * Description:        No-code library hours: staff edit hours under Library Hours in wp-admin and click Save. Show them anywhere with the [library_hours] shortcode. Replaces LibCal hours.
- * Version:           1.1.14
+ * Version:           1.1.15
  * Author:            Madeleine Clark Wallace Library
  * License:           GPL-2.0+
  * Requires at least: 5.6
@@ -599,8 +599,8 @@ function mcw_hours_full_markup() {
   .mcw-cal caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
   .mcw-cal th{width:14.28%;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--muted);padding:6px 4px;text-align:center;border:1px solid var(--line);background:#fafafa}
   .mcw-cal th abbr{text-decoration:none;border:0;cursor:default}
-  .mcw-cal td{border:1px solid var(--line);vertical-align:top;height:78px;padding:5px 7px}
-  .mcw-cal td.empty{background:#fafafa}
+  .mcw-cal td{border:1px solid var(--line);vertical-align:top;height:78px;padding:5px 7px;background:#fff}
+  .mcw-cal td.empty{background:#999}
   .mcw-cal .num{display:block;font-size:.82rem;font-weight:700;line-height:1;margin-bottom:3px}
   .mcw-cal .hrs{display:block;font-size:.75rem;color:#333;line-height:1.3;font-variant-numeric:tabular-nums}
   .mcw-cal .cnote{display:block;font-size:.7rem;color:var(--muted);font-style:italic;line-height:1.25;margin-top:1px}

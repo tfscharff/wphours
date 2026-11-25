@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Library Hours
  * Description:        No-code library hours: staff edit hours under Library Hours in wp-admin and click Save. Show them anywhere with the [library_hours] shortcode. Replaces LibCal hours.
- * Version:           1.1.15
+ * Version:           1.1.16
  * Author:            Madeleine Clark Wallace Library
  * License:           GPL-2.0+
  * Requires at least: 5.6

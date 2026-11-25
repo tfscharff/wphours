@@ -21,6 +21,9 @@ runner: `node --test "tests/js/*.test.mjs"` (it calls the PHP CLI to get the plu
 
 ## Changelog
 
+- **1.1.16** (2026-11-25) — Stricter validation when hours are saved: times after 24:00 (such as
+  24:30) and dates that do not exist (such as 2026-02-30) are now rejected. A damaged saved
+  schedule now shows the day as closed instead of open with no hours.
 - **1.1.15** (2026-10-07) — Full hours calendar shading: open days white, closed days light gray,
   today pale blue, and days outside the month dark gray.
 - **1.1.14** (2026-10-07) — Closed days on the full hours calendar (and their legend key) use a

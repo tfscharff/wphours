@@ -6,12 +6,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Library Hours — a single-file WordPress plugin (`mcw-library-hours.php`) that lets library
 staff edit hours in wp-admin and displays them on the front end via shortcodes. No build step, no
-package manager, no test suite — it's plain PHP + vanilla JS, deployed by zipping the plugin and
+package manager — it's plain PHP + vanilla JS, deployed by zipping the plugin and
 uploading it through wp-admin (see README.md).
 
-There is no local dev/test tooling in this repo. Verify changes by reading the code carefully and,
-where possible, loading the plugin in a real or local WordPress install (e.g. `wp-env` or a local
-WP install) — this repo does not include one.
+## Tests
+
+A dependency-free stub-harness suite covers the PHP data layer (time/date validation, the
+`mcw_hours_sanitize*()` family, `mcw_hours_get()`/`default()`, `mcw_hours_resolve()` precedence),
+the REST callbacks (called directly with stub request objects) and the shortcode output. The JS
+resolver and editor are not covered; verify those in a browser or a real WordPress install.
+
+- `tests/run.php` defines `ABSPATH`, stubs the WordPress functions the plugin uses, requires the
+  plugin, then requires `tests/cases.php` (the cases and a tiny `ok()` helper).
+- Run: `C:\Users\thoma\bin\php\php.exe tests/run.php` (exits non-zero on any failure).
+- Lint: `C:\Users\thoma\bin\php\php.exe -l mcw-library-hours.php` (and on both test files).
+- If the plugin starts calling a new WordPress function at load time or in a tested function, add a
+  stub to `tests/run.php`.
+- `tests/` must stay out of the release zip (the zip holds only the plugin file, README and LICENSE).
+- Cases marked `CURRENT BEHAVIOUR (suspected bug)` pin down quirks as they are today; update them
+  deliberately if the behaviour is fixed.
 
 ## Architecture
 
@@ -30,7 +43,7 @@ Everything lives in `mcw-library-hours.php`, organized top-to-bottom into five s
    - `guest` (optional): a second, independent `{weekly, exceptions, ranges}` schedule — only
      persisted once staff actually set it.
    - **Resolution precedence** (`mcw_hours_resolve()` in PHP, mirrored by `mcwResolve()` in JS):
-     exception for that date > first matching range > weekly default.
+     exception for that date > last matching range (the most recently added wins when ranges overlap) > weekly default.
    - All writes go through `mcw_hours_sanitize()` (and the schedule/weekly/exceptions/ranges
      sanitizers it calls) — this is the only path that persists data, so any new field must be
      added there or it will be silently dropped.

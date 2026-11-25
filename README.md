@@ -15,8 +15,9 @@ Download the latest release zip, then in wp-admin: **Plugins → Add New → Upl
 ## Development
 
 Tests need only the PHP CLI, no Composer or WordPress: `php tests/run.php` (stubs WordPress, runs
-`tests/cases.php`, exits non-zero on failure). `tests/` is for development and must not be included
-in the release zip.
+`tests/cases.php`, exits non-zero on failure). The shared JS resolver is tested with Node's built-in
+runner: `node --test "tests/js/*.test.mjs"` (it calls the PHP CLI to get the plugin's real JS).
+`tests/` is for development and must not be included in the release zip.
 
 ## Changelog
 

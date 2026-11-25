@@ -12,6 +12,12 @@ Replaces LibCal Hours.
 
 Download the latest release zip, then in wp-admin: **Plugins → Add New → Upload Plugin**.
 
+## Development
+
+Tests need only the PHP CLI, no Composer or WordPress: `php tests/run.php` (stubs WordPress, runs
+`tests/cases.php`, exits non-zero on failure). `tests/` is for development and must not be included
+in the release zip.
+
 ## Changelog
 
 - **1.1.15** (2026-10-07) — Full hours calendar shading: open days white, closed days light gray,

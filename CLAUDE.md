@@ -43,7 +43,7 @@ Everything lives in `mcw-library-hours.php`, organized top-to-bottom into five s
    - `guest` (optional): a second, independent `{weekly, exceptions, ranges}` schedule — only
      persisted once staff actually set it.
    - **Resolution precedence** (`mcw_hours_resolve()` in PHP, mirrored by `mcwResolve()` in JS):
-     exception for that date > first matching range > weekly default.
+     exception for that date > last matching range (the most recently added wins when ranges overlap) > weekly default.
    - All writes go through `mcw_hours_sanitize()` (and the schedule/weekly/exceptions/ranges
      sanitizers it calls) — this is the only path that persists data, so any new field must be
      added there or it will be silently dropped.

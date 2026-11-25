@@ -32,10 +32,9 @@ foreach ( array( '25:00', '12:60', '9:00', '09:0', '0900', '09:00:00', '', ' 09:
 }
 ok( false === (bool) mcw_hours_valid_time( null ) && false === (bool) mcw_hours_valid_time( 900 ) && false === (bool) mcw_hours_valid_time( true ), 'non-string times rejected' );
 ok( false === (bool) mcw_hours_valid_time( array( '09:00' ) ) && false === (bool) mcw_hours_valid_time( array() ), 'array times rejected' );
-// Current behaviour, suspected loose spots: 24:30 passes (regex allows any minute after hour 24)
-// and a trailing newline passes (PCRE "$" matches before a final newline).
-ok( true === (bool) mcw_hours_valid_time( '24:30' ), 'CURRENT BEHAVIOUR (suspected bug): 24:30 is accepted' );
-ok( true === (bool) mcw_hours_valid_time( "09:00\n" ), 'CURRENT BEHAVIOUR (suspected bug): trailing newline is accepted' );
+foreach ( array( '24:01', '24:30', '24:59', "09:00\n", "24:00\n", "\n09:00" ) as $t ) {
+	ok( false === (bool) mcw_hours_valid_time( $t ), 'invalid time rejected: ' . json_encode( $t ) );
+}
 
 /* ---------------- mcw_hours_valid_date ---------------- */
 
@@ -44,7 +43,12 @@ foreach ( array( '2026-1-5', '26-10-28', '2026/10/28', '', 'tomorrow', '2026-10-
 	ok( false === (bool) mcw_hours_valid_date( $d ), 'invalid date rejected: "' . $d . '"' );
 }
 ok( false === (bool) mcw_hours_valid_date( null ) && false === (bool) mcw_hours_valid_date( 20261028 ) && false === (bool) mcw_hours_valid_date( array( '2026-10-28' ) ), 'non-string dates rejected' );
-ok( true === (bool) mcw_hours_valid_date( '2026-13-45' ), 'CURRENT BEHAVIOUR (suspected bug): shape-only check, 2026-13-45 accepted' );
+foreach ( array( '2026-13-45', '2026-13-01', '2026-00-10', '2026-10-32', '2026-10-00', '2026-02-30', '2027-02-29', '2026-04-31', "2026-10-28\n" ) as $d ) {
+	ok( false === (bool) mcw_hours_valid_date( $d ), 'impossible date rejected: ' . json_encode( $d ) );
+}
+foreach ( array( '2028-02-29', '2026-02-28', '2026-12-31', '2026-01-01' ) as $d ) {
+	ok( true === (bool) mcw_hours_valid_date( $d ), "real date accepted: $d" );
+}
 
 /* ---------------- default and get ---------------- */
 
@@ -272,10 +276,23 @@ ok( array( blk( '09:00', '21:00' ) ) === mcw_hours_resolve( $sch, '2026-10-28' )
 $r = mcw_hours_resolve( array(), '2026-10-28' );
 ok( array( 'blocks' => array(), 'note' => '', 'closed' => true ) === $r, 'resolve: empty schedule is closed' );
 ok( array() === mcw_hours_resolve( array( 'weekly' => 'junk', 'exceptions' => 'junk', 'ranges' => 'junk' ), '2026-10-28' )['blocks'], 'resolve: junk sections give no blocks' );
-// Suspected bug: a string "weekly" is indexed as a string offset ("junk"[3] is "k"), so the result is
-// no blocks but closed=false. Only reachable from a malformed stored option, never from the sanitizer.
-ok( false === mcw_hours_resolve( array( 'weekly' => 'junk' ), '2026-10-28' )['closed'], 'CURRENT BEHAVIOUR (suspected bug): string weekly gives no blocks yet closed=false' );
-ok( array( 'blocks' => array(), 'note' => '', 'closed' => false ) === mcw_hours_resolve( array( 'weekly' => array( '3' => 'junk' ) ), '2026-10-28' ), 'CURRENT BEHAVIOUR (suspected bug): non-array day value gives no blocks yet closed=false' );
+// A malformed stored option (never produced by the sanitizer) must resolve to closed, no blocks.
+$closed = array( 'blocks' => array(), 'note' => '', 'closed' => true );
+ok( $closed === mcw_hours_resolve( array( 'weekly' => 'junk' ), '2026-10-28' ), 'resolve: string weekly is closed' );
+ok( $closed === mcw_hours_resolve( array( 'weekly' => array( '3' => 'junk' ) ), '2026-10-28' ), 'resolve: non-array day value is closed' );
+ok( $closed === mcw_hours_resolve( array( 'weekly' => array( '3' => 5 ) ), '2026-10-28' ), 'resolve: numeric day value is closed' );
+ok( $closed === mcw_hours_resolve( array( 'weekly' => array( '3' => null ) ), '2026-10-28' ), 'resolve: null day value is closed' );
+$junk_range = array( 'start' => '2026-10-01', 'end' => '2026-10-31' );
+ok( $closed === mcw_hours_resolve( array( 'weekly' => wk( array( 3 => array( blk( '08:00', '17:00' ) ) ) ), 'ranges' => array( $junk_range + array( 'weekly' => 'junk' ) ) ), '2026-10-28' ), 'resolve: range with string weekly is closed (no fallback to weekly)' );
+ok( $closed === mcw_hours_resolve( array( 'ranges' => array( $junk_range + array( 'weekly' => array( '3' => 'junk' ) ) ) ), '2026-10-28' ), 'resolve: range with non-array day value is closed' );
+ok( $closed === mcw_hours_resolve( array( 'ranges' => array( $junk_range ) ), '2026-10-28' ), 'resolve: range without weekly is closed' );
+
+// Shared fixtures (also checked against the JS resolver in tests/js/resolver.test.mjs).
+require_once __DIR__ . '/fixtures.php';
+foreach ( wphf_cases() as $c ) {
+	$r = mcw_hours_resolve( $c[1], $c[2] );
+	ok( $c[3] === $r['blocks'] && $c[4] === $r['note'] && ( array() === $c[3] ) === $r['closed'], 'fixture: ' . $c[0] );
+}
 
 // Guest schedule resolves independently of the library schedule.
 $opt = array(

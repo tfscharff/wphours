@@ -13,8 +13,10 @@ uploading it through wp-admin (see README.md).
 
 A dependency-free stub-harness suite covers the PHP data layer (time/date validation, the
 `mcw_hours_sanitize*()` family, `mcw_hours_get()`/`default()`, `mcw_hours_resolve()` precedence),
-the REST callbacks (called directly with stub request objects) and the shortcode output. The JS
-resolver and editor are not covered; verify those in a browser or a real WordPress install.
+the REST callbacks (called directly with stub request objects) and the shortcode output. The shared
+JS resolver (`mcwResolve()`/`mcwSchedule()`) has Node tests that run the plugin's real JS. The
+editor and the widget/calendar rendering are not covered; verify those in a browser or a real
+WordPress install.
 
 - `tests/run.php` defines `ABSPATH`, stubs the WordPress functions the plugin uses, requires the
   plugin, then requires `tests/cases.php` (the cases and a tiny `ok()` helper).
@@ -23,8 +25,15 @@ resolver and editor are not covered; verify those in a browser or a real WordPre
 - If the plugin starts calling a new WordPress function at load time or in a tested function, add a
   stub to `tests/run.php`.
 - `tests/` must stay out of the release zip (the zip holds only the plugin file, README and LICENSE).
-- Cases marked `CURRENT BEHAVIOUR (suspected bug)` pin down quirks as they are today; update them
-  deliberately if the behaviour is fixed.
+- Cases marked `CURRENT BEHAVIOUR` pin down quirks as they are today (for example a block that
+  closes before it opens is accepted and stored); update them deliberately if the behaviour changes.
+- JS tests: `node --test "tests/js/*.test.mjs"` (Node's built-in runner, no npm packages; the quoted
+  glob is needed because Node 22 does not accept a bare directory). `tests/js/resolver.test.mjs`
+  runs `php tests/js-bridge.php` (so `php` must be on PATH, or set `PHP` to its full path), which
+  prints the resolver source from `mcw_hours_resolve_js()` plus the PHP resolver's answer for every
+  fixture in `tests/fixtures.php`; the test evaluates that source with `node:vm`. The same fixtures
+  are asserted in `tests/cases.php`, so PHP and JS are checked against each other. When you change
+  resolution, add the case to `tests/fixtures.php`.
 
 ## Architecture
 

@@ -45,12 +45,12 @@ function mcw_hours_get() {
 
 /** Validate "HH:MM" (00:00–24:00). */
 function mcw_hours_valid_time( $t ) {
-	return is_string( $t ) && preg_match( '/^(?:[01][0-9]|2[0-4]):[0-5][0-9]$/', $t );
+	return is_string( $t ) && preg_match( '/\A(?:(?:[01][0-9]|2[0-3]):[0-5][0-9]|24:00)\z/', $t );
 }
 
-/** Validate "YYYY-MM-DD". */
+/** Validate "YYYY-MM-DD" as a real calendar date. */
 function mcw_hours_valid_date( $d ) {
-	return is_string( $d ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d );
+	return is_string( $d ) && preg_match( '/\A(\d{4})-(\d{2})-(\d{2})\z/', $d, $m ) && checkdate( (int) $m[2], (int) $m[3], (int) $m[1] );
 }
 
 /** Sanitize a weekly map {"0".."6":[{open,close}]}. */
@@ -189,11 +189,13 @@ function mcw_hours_resolve( $schedule, $date ) {
 		}
 	}
 	if ( null !== $match ) {
-		$wk = isset( $match['weekly'][ (string) $dow ] ) ? $match['weekly'][ (string) $dow ] : array();
-		return array( 'blocks' => is_array( $wk ) ? $wk : array(), 'note' => '', 'closed' => empty( $wk ) );
+		$mw = isset( $match['weekly'] ) && is_array( $match['weekly'] ) ? $match['weekly'] : array();
+		$wk = isset( $mw[ (string) $dow ] ) && is_array( $mw[ (string) $dow ] ) ? $mw[ (string) $dow ] : array();
+		return array( 'blocks' => $wk, 'note' => '', 'closed' => empty( $wk ) );
 	}
-	$weekly = isset( $schedule['weekly'][ (string) $dow ] ) ? $schedule['weekly'][ (string) $dow ] : array();
-	return array( 'blocks' => is_array( $weekly ) ? $weekly : array(), 'note' => '', 'closed' => empty( $weekly ) );
+	$sw     = isset( $schedule['weekly'] ) && is_array( $schedule['weekly'] ) ? $schedule['weekly'] : array();
+	$weekly = isset( $sw[ (string) $dow ] ) && is_array( $sw[ (string) $dow ] ) ? $sw[ (string) $dow ] : array();
+	return array( 'blocks' => $weekly, 'note' => '', 'closed' => empty( $weekly ) );
 }
 
 /* ------------------------------------------------------------------ *
@@ -469,8 +471,12 @@ function mcwResolve(sch, dateKey, dow){
       match = r; // keep scanning; a later (more recently added) range overrides an earlier overlapping one
     }
   }
-  if(match) return {blocks:(match.weekly&&match.weekly[String(dow)])||[], note:""};
-  return {blocks:(sch.weekly&&sch.weekly[String(dow)])||[], note:""};
+  if(match) return {blocks:mcwDay(match.weekly,dow), note:""};
+  return {blocks:mcwDay(sch.weekly,dow), note:""};
+}
+function mcwDay(weekly, dow){
+  var d = weekly && typeof weekly==="object" ? weekly[String(dow)] : null;
+  return Array.isArray(d) ? d : [];
 }
 function mcwSchedule(cfg, which){
   if(which==="guest" && cfg.guest) return cfg.guest;
